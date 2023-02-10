@@ -14,6 +14,7 @@ import sys
 
 class WallpaperManager:
     def __init__(self):
+        self.init_config()
 
         # Read config from toml file
         with open("config.toml", "r") as f:
@@ -26,32 +27,18 @@ class WallpaperManager:
         self.folder_path = data["folder_path"]
         self.wallpaper_path = data["wallpaper_path"]
         self.sort_method = data["sort_method"]
+        self.i = data["i"]
 
         self.wallpapers = []
 
         if self.folder_path:
             self.update_wallpapers_list(self.folder_path)
-        # else:
-        #     # tries to load current wallpapers location
-        #     self.folder_path = os.path.join(
-        #         os.path.expanduser("~"),
-        #         "AppData",
-        #         "Roaming",
-        #         "Microsoft",
-        #         "Windows",
-        #         "Themes",
-        #         "CachedFiles",
-        #     )
-        #     self.update_wallpapers_list(self.folder_path)
 
         self.quit = False
-        self.i = 0
 
         # achieves wallpaper index history
         if self.wallpaper_path in self.wallpapers:
-            print("wallpaper found in current wallpapers list")
             self.index = self.wallpapers.index(self.wallpaper_path)
-            print(f"index is {self.index}")
         else:
             self.index = 0
 
@@ -74,6 +61,27 @@ class WallpaperManager:
         self.screen_width, self.screen_height = win32api.GetSystemMetrics(
             0
         ), win32api.GetSystemMetrics(1)
+
+    def init_config(self):
+        # check for config file
+        if os.path.exists("config.toml"):
+            print("config file exists")
+        else:
+            # create config file if not found
+            print("creating config file")
+            data = {
+                "timeout": 60,
+                "run_slideshow": True,
+                "blur_amount": 15,
+                "dim_amount": 0.0,
+                "folder_path": "",
+                "wallpaper_path": "",
+                "sort_method": "random",
+                "i": 0,
+            }
+
+            with open("config.toml", "w") as f:
+                toml.dump(data, f)
 
     def resize_to_display(self, img):
         height, width = img.shape[:2]
@@ -170,9 +178,10 @@ class WallpaperManager:
 
             path = os.path.abspath("output.png")
 
-            ctypes.windll.user32.SystemParametersInfoW(20, 0, path, 0)
+            # sets wallpaper on windows
+            ctypes.windll.user32.SystemParametersInfoW(20, 0, path, 3)
         else:
-            print("wallpaper list empty")
+            print("wallpaper list is empty")
 
     def update_wallpapers_list(self, folder_path):
         self.wallpapers = []
@@ -264,7 +273,7 @@ class WallpaperManager:
         if self.wallpapers:
             # sets wallpaper
             self.set_wallpaper(self.index)
-            print(f"Wallpaper Set | index:{self.index}")
+            print(f"Wallpaper set: {self.wallpaper_path}")
 
             # incrementing the index even tho its a single wallpaper cause
             # the amount and dim amount sets wallpaper again using index - 1
@@ -316,7 +325,6 @@ class WallpaperManager:
                 shell = win32com.client.Dispatch("WScript.Shell")
                 shortcut = shell.CreateShortcut(shortcut_path)
                 shortcut.TargetPath = sys.executable
-                # shortcut.Arguments = os.path.join(os.getcwd(), "main.pyw")
                 shortcut.WorkingDirectory = os.getcwd()
                 shortcut.windowStyle = 7
                 shortcut.save()
@@ -331,7 +339,10 @@ class WallpaperManager:
             "folder_path": self.folder_path,
             "wallpaper_path": self.wallpaper_path,
             "sort_method": self.sort_method,
+            "i": self.i,
         }
+
+        print(data)
 
         with open("config.toml", "w") as f:
             toml.dump(data, f)
@@ -358,14 +369,19 @@ class WallpaperManager:
                         # saves wallpaper path to config
                         self.wallpaper_path = self.wallpapers[self.index]
                         self.update_config_file()
-                        print(f"Wallpaper Set | index:{self.index}")
                         if self.index != len(self.wallpapers) - 1:
                             self.index += 1
                         else:
                             self.index = 0
+
+                # every 1 minute save i to config
+                # to remember interval time if program restarts
+                if self.i % 60 == 0 and self.i != 0:
+                    self.update_config_file()
+
                 self.i += 1
 
-                print(f"{self.i}                 ", end="\r")
+                print(f"{self.i}     ", end="\r")
                 time.sleep(1)
             # quit program
             if self.quit:
