@@ -8,8 +8,6 @@ import logging
 
 from PIL import Image
 
-from tendo import singleton
-
 
 # sets logging
 logger = logging.getLogger(__name__)
@@ -17,9 +15,6 @@ logger.setLevel(logging.ERROR)
 
 
 try:
-
-    me = singleton.SingleInstance()  # will sys.exit(-1) if other instance is running
-
     # sets dark mode for pystray
     ctypes.windll["uxtheme.dll"][135](1)
 
@@ -207,7 +202,7 @@ try:
                 ),
                 menu.SEPARATOR,
                 item(
-                    "Next",
+                    f"Next",
                     self.wallpaper_manager.select_next,
                     default=True,
                 ),

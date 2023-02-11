@@ -20,6 +20,8 @@ class WallpaperManager:
         with open("config.toml", "r") as f:
             data = toml.load(f)
 
+        self.quit = False
+
         self.timeout = data["timeout"]
         self.run_slideshow = data["run_slideshow"]
         self.blur_amount = data["blur_amount"]
@@ -33,8 +35,6 @@ class WallpaperManager:
 
         if self.folder_path:
             self.update_wallpapers_list(self.folder_path)
-
-        self.quit = False
 
         # achieves wallpaper index history
         if self.wallpaper_path in self.wallpapers:
@@ -185,7 +185,6 @@ class WallpaperManager:
 
     def update_wallpapers_list(self, folder_path):
         self.wallpapers = []
-        self.index = 0
         if folder_path:
             for filename in os.listdir(folder_path):
                 if (
@@ -242,6 +241,7 @@ class WallpaperManager:
         self.update_config_file()
 
         self.update_wallpapers_list(self.folder_path)
+        self.index = 0
 
     def select_next(self):
         self.i = 0
@@ -257,6 +257,7 @@ class WallpaperManager:
             return
 
         self.update_wallpapers_list(self.folder_path)
+        self.index = 0
         root.destroy()
         self.i = 0
 
@@ -326,7 +327,6 @@ class WallpaperManager:
                 shortcut = shell.CreateShortcut(shortcut_path)
                 shortcut.TargetPath = sys.executable
                 shortcut.WorkingDirectory = os.getcwd()
-                shortcut.windowStyle = 7
                 shortcut.save()
             self.run_at_startup = True
 
@@ -362,6 +362,14 @@ class WallpaperManager:
                 # every self.timeout seconds change wallpaper
                 if self.i % self.timeout == 0:
                     self.i = 0
+
+                    self.update_wallpapers_list(self.folder_path)
+
+                    # if index position is out of range after updating wallpapers list
+                    # set index to 0
+                    # TODO: set index by correcting index for updated wallpapers list
+                    if self.index >= len(self.wallpapers):
+                        self.index = 0
 
                     if self.wallpapers:
                         # sets wallpaper
