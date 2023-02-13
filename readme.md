@@ -7,6 +7,9 @@ FullFillBlur is a system tray application that eliminates black borders when set
 -   Set slideshow of wallpapers
 -   Blur and dim adjustments for the background image
 
+## Download
+Download the latest version of FullFillBlur from the [Release section on GitHub](https://github.com/EntityCuber/FullFillBlur/releases/).
+
 ## Running the Application
 
 1.  Clone the repository:
