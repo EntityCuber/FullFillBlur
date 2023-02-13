@@ -29,7 +29,7 @@ $ pip install -r requirements.txt
 
 4.  Running FullFillBlur:
 ```
-$ python main.py`
+$ python main.py
 ```
 
 ## Building with PyInstaller (Recommended)
