@@ -31,6 +31,8 @@ class WallpaperManager:
         self.sort_method = data["sort_method"]
         self.i = data["i"]
 
+        self.next_wallpaper_path = ""
+
         self.wallpapers = []
 
         if self.folder_path:
@@ -223,12 +225,18 @@ class WallpaperManager:
     def select_blur_amount(self, icon, item):
         self.blur_amount = int(item.text)
         self.update_config_file()
-        self.set_wallpaper(self.index - 1)
+
+        self.update_wallpapers_list(self.folder_path)
+        if self.wallpaper_path in self.wallpapers:
+            self.set_wallpaper(self.wallpapers.index(self.wallpaper_path))
 
     def select_dim_amount(self, icon, item):
         self.dim_amount = float(item.text)
         self.update_config_file()
-        self.set_wallpaper(self.index - 1)
+
+        self.update_wallpapers_list(self.folder_path)
+        if self.wallpaper_path in self.wallpapers:
+            self.set_wallpaper(self.wallpapers.index(self.wallpaper_path))
 
     def select_sort_method(self, icon, item):
         if item.text == "Ascending":
@@ -242,6 +250,7 @@ class WallpaperManager:
 
         self.update_wallpapers_list(self.folder_path)
         self.index = 0
+        self.next_wallpaper_path = ""
 
     def select_next(self):
         self.i = 0
@@ -255,6 +264,8 @@ class WallpaperManager:
             self.folder_path = folder_path
         else:
             return
+
+        self.next_wallpaper_path = ""
 
         self.update_wallpapers_list(self.folder_path)
         self.index = 0
@@ -284,13 +295,14 @@ class WallpaperManager:
                 self.index = 0
 
     def select_file(self, icon, item):
-
         root = tk.Tk()
         root.withdraw()
         file = filedialog.askopenfile(filetypes=[("Image files", "*.png;*.jpg;*.jpeg")])
 
         if not file:
             return
+
+        self.next_wallpaper_path = ""
 
         # to avoid setting the image again the slideshow is stopped
         self.run_slideshow = False
@@ -365,11 +377,17 @@ class WallpaperManager:
 
                     self.update_wallpapers_list(self.folder_path)
 
-                    # if index position is out of range after updating wallpapers list
-                    # set index to 0
-                    # TODO: set index by correcting index for updated wallpapers list
-                    if self.index >= len(self.wallpapers):
-                        self.index = 0
+                    if self.next_wallpaper_path:
+                        # print(f"next wallpaper found: {self.next_wallpaper_path}")
+                        if self.next_wallpaper_path in self.wallpapers:
+                            self.index = self.wallpapers.index(self.next_wallpaper_path)
+                            print(f"wallpaper in the list: {self.index}")
+                        else:
+                            # print(
+                            #     "wallpaper not in the list: index set to 0 and cleared next wallpaper path"
+                            # )
+                            self.next_wallpaper_path = ""
+                            self.index = 0
 
                     if self.wallpapers:
                         # sets wallpaper
@@ -381,6 +399,10 @@ class WallpaperManager:
                             self.index += 1
                         else:
                             self.index = 0
+
+                        # set next wallpaper set
+                        self.next_wallpaper_path = self.wallpapers[self.index]
+                        # print(f"next wallpaper set: {self.next_wallpaper_path}")
 
                 # every 1 minute save i to config
                 # to remember interval time if program restarts

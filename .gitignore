@@ -1,0 +1,9 @@
+output.png
+config.toml
+__pycache__/
+*.pyc
+dist/
+build/
+venv/
+Full Fill Blur.spec
+preview/
