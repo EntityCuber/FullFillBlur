@@ -40,7 +40,7 @@ $ pip install pyinstaller
 
 2.  Run the `freeze_with_pyinstaller.bat` file to build the executable:
 ```
-$ ./freeze_with_pyinstaller.bat
+$ freeze_with_pyinstaller.bat
 ```
 
 The executable will be located in the `dist` directory.
