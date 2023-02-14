@@ -400,7 +400,7 @@ class WallpaperManager:
                         else:
                             self.index = 0
 
-                        # set next wallpaper set
+                        # set next wallpaper path
                         self.next_wallpaper_path = self.wallpapers[self.index]
                         # print(f"next wallpaper set: {self.next_wallpaper_path}")
 
